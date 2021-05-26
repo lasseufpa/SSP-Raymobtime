@@ -17,20 +17,6 @@ You may install these packages using pip or similar software. For example, with 
 
 pip install tensorflow
 
-### Preprocessing
-Before training your model, preprocess the data using:
-
-```bash
-python preprocessing.py raymobtime_root data_folder
-```
-* Parameters
-  
-  * (**Mandatory**) *raymobtime_root* is the directory where you placed the files related to the Raymobtime dataset, downloaded using one of the scripts available [here](https://github.com/lasseufpa/ITU-Challenge-ML5G-PHY/tree/master/Beam_selection/data).
-
-  * (**Mandatory**) *data_folder* is the directory where you want to place the processed files.
-
-> If *data_folder* doesn't exist, it will be created for you
-
 ### Training and validation
 After download the data and save at `SSP_data/bs_baseline_data/` or `SSP_data/ce_baseline_data/`, run the following command in the `beam_selection` directory  for beam selection simulation:
 
@@ -42,7 +28,7 @@ python beam_selection.py
   * (**Optional**) *--plots* plot the accuracy and validation accuracy of your model.
 
 
-To train a mimo_fixed channel, as instance, use the following command:
+To train a mimo_fixed channel, for instance, use the following command inside `channel_estimation` folder:
 ```bash
 python train.py mimo_fixed
 ```
@@ -52,6 +38,11 @@ python train.py mimo_fixed
   * (**Optional**) *--plots* plot the accuracy and validation accuracy of your model.
 
 Also, you should create `models` and `results` folders inside `channel_estimation` directory.
+
+To test a channel estimation model, use `test.py` file:
+```bash
+python test.py mimo_fixed
+```
 
 ### Citation
 
