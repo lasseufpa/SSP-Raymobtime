@@ -15,8 +15,6 @@ import tensorflow.keras.utils
 from tensorflow.keras import backend as K
 import numpy as np
 import copy
-from cGANDiscriminator import Discriminator
-from cGANGenerator import Generator
 
 class ModelHandler:
     
@@ -34,20 +32,19 @@ class ModelHandler:
 
         H_normalization_factor = np.sqrt(output_dim[0]//2 * output_dim[1])
         
-        if(model_type == 'channel_conv'):
-            dropProb=0.3
-            input_channel = Input(shape = input_shape)
-                        
-            layer = Conv1D(64, 3, activation='tanh', padding="SAME")(input_channel)
-            layer = Conv1D(64, 3, padding="SAME", activation='tanh')(layer)
-            layer = Dropout(dropProb)(layer)
+        dropProb=0.3
+        input_channel = Input(shape = input_shape)
+                    
+        layer = Conv1D(64, 3, activation='tanh', padding="SAME")(input_channel)
+        layer = Conv1D(64, 3, padding="SAME", activation='tanh')(layer)
+        layer = Dropout(dropProb)(layer)
 
-            layer = Flatten()(layer)
-            layer = Dense(num_classes,activation='linear')(layer)
-            layer = Lambda(lambda x: H_normalization_factor * K.l2_normalize(x, axis=-1))(layer)
-            out = Reshape(output_dim)(layer)
-            
-            model = Model(inputs = input_channel, outputs = out)       
+        layer = Flatten()(layer)
+        layer = Dense(num_classes,activation='linear')(layer)
+        layer = Lambda(lambda x: H_normalization_factor * K.l2_normalize(x, axis=-1))(layer)
+        out = Reshape(output_dim)(layer)
+        
+        model = Model(inputs = input_channel, outputs = out)       
               
         return model
 
