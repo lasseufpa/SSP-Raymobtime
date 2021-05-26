@@ -18,7 +18,7 @@ You may install these packages using pip or similar software. For example, with 
 pip install tensorflow
 
 ### Training and validation
-After download the data and save at `SSP_data/bs_baseline_data/` or `SSP_data/ce_baseline_data/`, run the following command in the `beam_selection` directory  for beam selection simulation:
+After download the data and save it at `SSP_data/bs_baseline_data/` or `SSP_data/ce_baseline_data/` accordingly to situation, run the following command in the `beam_selection` directory  for beam selection simulation:
 
 ```bash
 python beam_selection.py
