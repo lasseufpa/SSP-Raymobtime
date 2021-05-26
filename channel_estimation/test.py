@@ -36,108 +36,69 @@ import os
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Configure the files before training the net.')
-    parser.add_argument('data_folder', help='Location of the data directory', type=str)
-    parser.add_argument('model_name', help='Name of the model', type=str)
-    #TODO: limit the number of input to 4
-    parser.add_argument('--input', nargs='*', default=['coord'], 
-        choices = ['img', 'coord', 'lidar','channel'],
-        help='Which data to use as input. Select from: img, lidar or coord.')
+    parser.add_argument('model_name', help='Name of the model', type=str)    
     args = parser.parse_args()
 
 ###############################################################################
 # Data configuration
 ###############################################################################
 tf.device('/device:GPU:0')
-data_dir = args.data_folder+'/'
 tgtRec = 3
 
-if 'coord' in args.input: 
-    ###############################################################################
-    # Coordinate configuration
-    #test dataset
-    coord_test_input_file = data_dir+'coord_input/coord_validation.npz'
-    coord_test_cache_file = np.load(coord_test_input_file)
-    X_coord_test = coord_test_cache_file['coordinates']
 
+###############################################################################
+# Channel data configuration
+# fix random seed for reproducibility
+seed = 1
+np.random.seed(seed)
 
-if 'img' in args.input:
-    ###############################################################################
-    # Image configuration
-    resizeFac = 20 # Resize Factor
-    nCh = 1 # The number of channels of the image
-    imgDim = (360,640) # Image dimensions
-    method = 1
-    #test dataset
-    img_test_input_file = data_dir+'image_input/img_input_validation_'+str(resizeFac)+'.npz'
-    print("Reading dataset... ",img_test_input_file)
-    img_test_cache_file = np.load(img_test_input_file)
-    X_img_test = img_test_cache_file['inputs']
+# training parameters
+epochs = 100
 
+# Parameters
+global Nt
+global Nr
+Nt = 64  # num of Rx antennas, will be larger than Nt for uplink massive MIMO
+Nr = 8  # num of Tx antennas
+# the sample is a measurement of Y values, and their collection composes an example. The channel estimation
+min_randomized_snr_db = -1
+max_randomized_snr_db = 1
 
-if 'lidar' in args.input:
-    ###############################################################################
-    # LIDAR configuration
-    #test dataset
-    lidar_test_input_file = data_dir+'lidar_input/lidar_validation.npz'
-    print("Reading dataset... ",lidar_test_input_file)
-    lidar_test_cache_file = np.load(lidar_test_input_file)
-    X_lidar_test = lidar_test_cache_file['input']
+# must be done per example, each one having a matrix of Nr x numSamplesPerExample of complex numbers
+numSamplesPerExample = 256  # number of channel uses, input and output pairs
+# if wants a gradient calculated many times with same channel
+numExamplesWithFixedChannel = 1
+numSamplesPerFixedChannel = (
+    numExamplesWithFixedChannel * numSamplesPerExample
+)  # coherence time
+# obs: it may make sense to have the batch size equals the coherence time
+batch = 1  # numExamplesWithFixedChannel
 
+num_test_examples = 1960
+channel_train_input_file = f"../SSP_data/ce_baseline_data/{args.model_name}.mat"
+print("Reading dataset... ",channel_train_input_file)
+method = "manual"
 
-if 'channel' in args.input:
-    ###############################################################################
-    # Channel data configuration
-    # fix random seed for reproducibility
-    seed = 1
-    np.random.seed(seed)
-
-    # training parameters
-    epochs = 100
-
-    # Parameters
-    global Nt
-    global Nr
-    Nt = 16  # num of Rx antennas, will be larger than Nt for uplink massive MIMO
-    Nr = 8  # num of Tx antennas
-    # the sample is a measurement of Y values, and their collection composes an example. The channel estimation
-    min_randomized_snr_db = -1
-    max_randomized_snr_db = 1
-
-    # must be done per example, each one having a matrix of Nr x numSamplesPerExample of complex numbers
-    numSamplesPerExample = 256  # number of channel uses, input and output pairs
-    # if wants a gradient calculated many times with same channel
-    numExamplesWithFixedChannel = 1
-    numSamplesPerFixedChannel = (
-        numExamplesWithFixedChannel * numSamplesPerExample
-    )  # coherence time
-    # obs: it may make sense to have the batch size equals the coherence time
-    batch = 1  # numExamplesWithFixedChannel
-
-    num_test_examples = 1960
-    channel_train_input_file = data_dir + f"channel_data/{args.model_name}.mat"
-    print("Reading dataset... ",channel_train_input_file)
-    method = "manual"
-
-    # Generator
-    training_generator = RandomChannelMimoDataGenerator(
-        batch_size=batch,
-        Nr=Nr,
-        Nt=Nt,
-        # num_clusters=num_clusters,
-        numSamplesPerFixedChannel=numSamplesPerFixedChannel,
-        # numSamplesPerExample=numSamplesPerExample, SNRdB=SNRdB,
-        numSamplesPerExample=numSamplesPerExample,
-        # method='random')
-        method=method,
-        file = channel_train_input_file
-    )
-    if True:
-        training_generator.randomize_SNR = True
-        training_generator.min_randomized_snr_db = min_randomized_snr_db
-        training_generator.max_randomized_snr_db = max_randomized_snr_db
-    else:
-        training_generator.randomize_SNR = True
-        training_generator.SNRdB = 0
+# Generator
+training_generator = RandomChannelMimoDataGenerator(
+    batch_size=batch,
+    Nr=Nr,
+    Nt=Nt,
+    # num_clusters=num_clusters,
+    numSamplesPerFixedChannel=numSamplesPerFixedChannel,
+    # numSamplesPerExample=numSamplesPerExample, SNRdB=SNRdB,
+    numSamplesPerExample=numSamplesPerExample,
+    # method='random')
+    method=method,
+    file = channel_train_input_file
+)
+if True:
+    training_generator.randomize_SNR = True
+    training_generator.min_randomized_snr_db = min_randomized_snr_db
+    training_generator.max_randomized_snr_db = max_randomized_snr_db
+else:
+    training_generator.randomize_SNR = True
+    training_generator.SNRdB = 0
 
 
 
@@ -150,8 +111,6 @@ model_name = args.model_name
 model_filepath = f"models/model_{model_name}.h5"
 logdir = 'results/'
 model = keras.models.load_model(model_filepath)
-
-multimodal = False if len(args.input) == 1 else len(args.input)
 
 SNRdB_values = np.arange(-21, 22, 3)
 training_generator.randomize_SNR = False
@@ -170,31 +129,9 @@ for SNRdB in SNRdB_values:
     X_channel_test, outputs = training_generator.get_examples(1)
     # now get the actual examples:
     X_channel_test, outputs = training_generator.get_examples(num_test_examples)
-    X_channel_test = X_channel_test.reshape((-1,numSamplesPerExample, 2 * Nr, 1))
-    if multimodal == 2:
-        if 'channel' in args.input and 'lidar' in args.input:
-            multimodal_inputs = [X_channel_test,X_lidar_test]
-        elif 'channel' in args.input and 'img' in args.input:
-            multimodal_inputs = [X_channel_test,X_img_test]
-        elif 'channel' in args.input and 'coord' in args.input:
-            multimodal_inputs = [X_channel_test,X_coord_test]
-        
-    elif multimodal == 3:
-        if 'channel' in args.input and 'coord' in args.input and 'img' in args.input:
-            multimodal_inputs = [X_channel_test,X_coord_test, X_img_test]
-            
-        if 'channel' in args.input and 'coord' in args.input and 'lidar' in args.input:
-            multimodal_inputs = [X_channel_test,X_coord_test, X_lidar_test]
-            
-        if 'channel' in args.input and 'lidar' in args.input and 'img' in args.input:
-            multimodal_inputs = [X_channel_test,X_lidar_test, X_img_test]
-            
-    elif multimodal == 4:
-        multimodal_inputs = [X_channel_test,X_lidar_test, X_coord_test, X_img_test]
-    else:
-        multimodal_inputs = X_channel_test
+    X_channel_test = X_channel_test.reshape((-1,numSamplesPerExample, 2 * Nr, 1))    
 
-    predictedOutput = model.predict(multimodal_inputs)
+    predictedOutput = model.predict(X_channel_test)
     error = outputs - predictedOutput
     mseTest = np.mean(error[:] ** 2)
     print("overall MSE = ", mseTest)
