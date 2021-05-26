@@ -11,14 +11,13 @@ model the only dependencies are:
 * [TensorFlow](https://www.tensorflow.org/install)
 * [Scikit-learn](https://scikit-learn.org/stable/install.html)
 * [Numpy](https://numpy.org/install/)
+* [Matplotlib](https://matplotlib.org/users/installing.html) For plotting
 
 You may install these packages using pip or similar software. For example, with pip:
 
 pip install tensorflow
 
-### How to use it?
-
-#### Preprocessing
+### Preprocessing
 Before training your model, preprocess the data using:
 
 ```bash
@@ -32,7 +31,7 @@ python preprocessing.py raymobtime_root data_folder
 
 > If *data_folder* doesn't exist, it will be created for you
 
-#### Training and validation
+### Training and validation
 After processing the data, you can train and validate your model using the
 following command:
 
@@ -42,13 +41,26 @@ python main.py data_folder --input type_of_input
 
 * Parameters 
 
-  * (**Mandatory**) *data_folder* is the same one directory generated on the preprocessing step.
+  * (**Optional**) *data_folder* is the same one directory generated on the preprocessing step.
 
   * (**Optional**) *--input* is a list of the types of data that you want to feed into your model. You can pass up to 3 different types, the possible ones are : *img, coord and lidar*. In the absence of the *--input* parameter, the coord data will be used as a default
   * (**Optional**) *--plots* plot the accuracy and validation accuracy of your model.
 
-##### Usage example
+#### Usage example
 To train a model that uses *images, lidar and coordinates* use the command:
 ```bash
 python main.py data --input img lidar coord
+```
+### Citation
+
+```bibtex
+@inproceedings{
+    klautau2021,
+    title={Generating {MIMO} Channels for {6G} Virtual Worlds Using Ray-tracing Simulations},
+    author={Klautau, Aldebaro and De Oliveira, Ailton and Trindade, Isabela and Alves, Wesin},
+    booktitle={IEEE Statistical Signal Processing Workshop},
+    year={2021},
+    month={Jul},
+        
+}
 ```

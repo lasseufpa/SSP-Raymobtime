@@ -10,8 +10,6 @@ from akpy.mimo_channels import (
     channelFromArrayToAngularDomain,
 )
 
-from hysteresis_quantizer import hysteresis_quantize
-
 from akpy.quantizer import ak_quantizer
 
 from sklearn.preprocessing import MinMaxScaler
@@ -112,8 +110,7 @@ class MimoChannel:
         randomize_SNR=True,
         SNRdB=0,
         min_randomized_snr_db=-10,
-        max_randomized_snr_db=10,
-        hysteresis_range=0.5,
+        max_randomized_snr_db=10,        
     ):
         # noiseless transmission
         Y = np.matmul(self.H, X)  # multiplication with training sequence
@@ -145,13 +142,7 @@ class MimoChannel:
 
         # Quantize (it will change the norm)
 
-        shouldUseHysteresisQuantizer = False
-        if shouldUseHysteresisQuantizer:
-            std = np.random.rand() * hysteresis_range
-            Y = hysteresis_quantize(Y, std=std)
-            Y = ak_quantizer(np.real(Y), 1, -1, 1, 1)[0] + 1j * ak_quantizer(np.imag(Y), 1, -1, 1, 1)[0]
-        else:
-            Y = np.sign(np.real(Y)) + 1j * np.sign(np.imag(Y))
+        Y = np.sign(np.real(Y)) + 1j * np.sign(np.imag(Y))
 
         # print('New signals!') #
 

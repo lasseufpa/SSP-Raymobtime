@@ -25,8 +25,7 @@ def main():
 
     #limit = processCoordinates(args.data_folder, args.dataset)
     #processImageData(args.data_folder, args.dataset, limit)
-    #processLidarData(args.data_folder, args.dataset, limit)
-    #processBeamsOutput(args.data_folder, args.dataset, limit)
+    #processLidarData(args.data_folder, args.dataset, limit)    
     processChannelData(args.data_folder, args.dataset)
     #processChannelRandomGeo(args.data_folder, args.dataset)
 
