@@ -32,25 +32,27 @@ python preprocessing.py raymobtime_root data_folder
 > If *data_folder* doesn't exist, it will be created for you
 
 ### Training and validation
-After processing the data, you can train and validate your model using the
-following command:
+After download the data and save at `SSP_data/bs_baseline_data/` or `SSP_data/ce_baseline_data/`, run the following command in the `beam_selection` directory  for beam selection simulation:
 
 ```bash
-python main.py data_folder --input type_of_input
+python beam_selection.py
+```
+
+* Parameters   
+  * (**Optional**) *--plots* plot the accuracy and validation accuracy of your model.
+
+
+To train a mimo_fixed channel, as instance, use the following command:
+```bash
+python train.py mimo_fixed
 ```
 
 * Parameters 
-
-  * (**Optional**) *data_folder* is the same one directory generated on the preprocessing step.
-
-  * (**Optional**) *--input* is a list of the types of data that you want to feed into your model. You can pass up to 3 different types, the possible ones are : *img, coord and lidar*. In the absence of the *--input* parameter, the coord data will be used as a default
+  * (**Required**) *--model_name* for channel estimation simulation, it represents model name and channel data that will be used to train or test.
   * (**Optional**) *--plots* plot the accuracy and validation accuracy of your model.
 
-#### Usage example
-To train a model that uses *images, lidar and coordinates* use the command:
-```bash
-python main.py data --input img lidar coord
-```
+Also, you should create `models` and `results` folders inside `channel_estimation` directory.
+
 ### Citation
 
 ```bibtex
