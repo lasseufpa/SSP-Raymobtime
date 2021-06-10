@@ -18,18 +18,16 @@ You may install these packages using pip or similar software. For example, with 
 
 pip install tensorflow
 
-### Training and validation
-After download the data and save it at `SSP_data/bs_baseline_data/` or `SSP_data/ce_baseline_data/` accordingly to situation, run the following command in the `beam_selection` directory  for beam selection simulation:
+### Training and testing for Beam Selection
+After download the data and save it at `SSP_data/bs_baseline_data/`, run the following command in the `beam_selection` directory:
 
 ```bash
 python beam_selection.py
 ```
 
-* Parameters   
-  * (**Optional**) *--plots* plot the accuracy and validation accuracy of your model.
+### Training and testing for Channel Estimation
+After download the data and save it at `SSP_data/ce_baseline_data/`, run the following command in the `channel_estimation` directory:
 
-
-To train a mimo_fixed channel, for instance, use the following command inside `channel_estimation` folder:
 ```bash
 python train.py mimo_fixed
 ```
